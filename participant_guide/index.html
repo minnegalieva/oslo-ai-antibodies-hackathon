@@ -2203,12 +2203,10 @@ function pagePrint(){
   printBuild=false;
   return `<div class="printbar"><div class="wrap">
     <a class="btn" href="#home">← Back to the website</a>
-    <span class="pinfo">Printable version: cover, contents, numbered chapters and page numbers. The PDFs keep every link clickable.</span>
-    <button class="btn solid" data-pdf="/_blob/9e405afb1e375981a0d296361213f904" data-name="AI-Antibodies-field-guide.pdf">Download PDF</button>
-    <button class="btn" data-pdf="/_blob/ce5065a126b827bf5efc4e5ce7b9f0e7" data-name="AI-Antibodies-field-guide-notes-margin.pdf">PDF with notes margin</button>
+    <span class="pinfo">Printable version: cover, contents, numbered chapters and page numbers. Choose "Save as PDF" in the print dialog; links (should) stay clickable.</span>
+    <button class="btn solid" id="pgo">Print or save as PDF</button>
     <label class="pexp"><input type="checkbox" id="pexp" checked> Expand “+” sections</label>
     <label class="pexp"><input type="checkbox" id="pnotes"> Wide margin for notes</label>
-    <button class="btn" id="pgo" title="Opens your browser’s print dialog. If nothing happens, use the PDF downloads.">Print</button>
   </div></div>
   <div class="pdoc">${home}${tracks}${footer()}<p class="pnote">The interactive calculators (affinity converter, histidine switch, liability scanner) are on the website’s Toolbox page.</p></div>`;
 }
