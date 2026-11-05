@@ -812,6 +812,7 @@ html.printmode .fn,html.printmode .fnr{break-inside:avoid}html.printmode #s-work
  .tbl.stack td:nth-child(2){color:var(--muted)}
 }
 
+.mtl{display:block;font:600 10.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 .mlmap.dv .mlc{gap:8px}.mt-auto{margin-top:auto}.mt-auto p{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
 .abfig.small.wide svg{max-height:none}
 
@@ -1422,7 +1423,7 @@ const DVI={
  chem:dvs([['#F0BC6B',0],['#3EAEA2',0],['#FFC53D',1],['#FFC53D',1],['#5D77B7',0],['#EDA5B0',0],['#8F5681',0],['#3EAEA2',0]].map(([k,w],i)=>`<rect x="${8+i*18}" y="${w?20:24}" width="15" height="${w?26:18}" rx="4" fill="${k}" ${w?'stroke="#E0457B" stroke-width="2"':''}/>`).join('')+'<path d="M53 3l7 12h-14z" fill="#E0457B"/><text x="53" y="13" text-anchor="middle" font-family="var(--f-mono)" font-weight="700" font-size="9" fill="#fff">!</text>'+T(53,58,'a risky motif','#E0457B','middle')),
  imm:dvs('<rect x="10" y="22" width="40" height="20" rx="10" fill="var(--accent)"/>'+T(30,57,'the drug','var(--muted)','middle')+'<path d="M58 32H84" stroke="#E0457B" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 5"/><circle cx="114" cy="32" r="15" fill="none" stroke="#E0457B" stroke-width="2.4"/>'+[0,60,120,180,240,300].map(a=>`<path d="M${114+15*Math.cos(a*Math.PI/180)} ${32+15*Math.sin(a*Math.PI/180)}L${114+21*Math.cos(a*Math.PI/180)} ${32+21*Math.sin(a*Math.PI/180)}" stroke="#E0457B" stroke-width="2.4" stroke-linecap="round"/>`).join('')+'<circle cx="114" cy="32" r="5" fill="#E0457B"/>'+T(114,62,'immune cell','var(--muted)','middle'))
 };
-const dvmap=(rows)=>`<div class="mlmap dv">${rows.map(([n,q,ic,cls,lab,note])=>`<div class="mlc"><div class="mlio-row sci">${DVI[ic]}</div><h4>${n}</h4><p style="margin:0;color:var(--ink);font-size:14.5px">${q}</p><div class="mt-auto"><span class="pill ${cls}">${lab}</span><p>${note}</p></div></div>`).join('')}</div>`;
+const dvmap=(rows)=>`<div class="mlmap dv">${rows.map(([n,q,ic,models])=>`<div class="mlc"><div class="mlio-row sci">${DVI[ic]}</div><h4>${n}</h4><p style="margin:0;color:var(--ink);font-size:14.5px">${q}</p><div class="mt-auto"><span class="mtl">Models to try</span><p>${models}</p></div></div>`).join('')}</div>`;
 
 /* Shared content that used to be repeated in every guide. Rendered on the front page. */
 const L=(u,t)=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`;
@@ -1527,13 +1528,14 @@ SH.workflow=()=>`<div class="prose">
 SH.mlhelp=()=>`<div class="prose">
   <p>Tools are not perfect yet, and the field moves fast. You can use <a href="#amass">AMASS</a> to find and learn about more models yourself, compare them, and see where each is strong and where it is weak.</p>
   ${mlmap([
-   ['No experimental structure of a protein (antibody or target)','Structure prediction and co-folding','seq','sequence','str','structure',['AlphaFold2/3','OpenFold','NanoBodyBuilder2','ABodyBuilder3','Boltz-2','Chai-1','ESMFold-2']],
+   ['No experimental structure of a protein (antibody or target)','Structure prediction and co-folding*','seq','sequence','str','structure',['AlphaFold2/3','OpenFold','NanoBodyBuilder2','ABodyBuilder3','Boltz-2','Chai-1','ESMFold-2']],
    ['Design a new binder from scratch (de novo)','Conditional generation','tgt','target','cplx','new binder',['RFD4-Proteina','RFdiffusion3','RFantibody','IgDiff','PXDesign','BoltzGen']],
-   ['You generated a structure but need a sequence that can take that shape','Inverse folding','str','structure','seq','sequence',['ProteinMPNN','ESM-IF1','AntiFold']],
+   ['You generated a structure but need a sequence that can take that shape','Inverse folding*','str','structure','seq','sequence',['ProteinMPNN','ESM-IF1','AntiFold']],
    ['Predict binding (KD)','Regression on sequence or structure','cplx','complex','kd','number',['AF-IG2','OpenDDE','related affinity models'],'Complex-confidence scores from AlphaFold-style methods are useful for ranking but are not KD estimates. With a suitable experimental dataset, you can train your own regressor or classifier.'],
    ['Turn a sequence into numbers (embeddings) to train your own ML model','Sequence encoding','seq','sequence','vec','embedding',['ESMC','SaProt','ESM-2','nanoBERT','IgBERT'],'Simple one-hot encoding can also work well.'],
    ['Screen developability','Property prediction','seq','sequence','prop','flags',['TNP (for VHHs)'],'Predictions require experimental follow-up.']
   ])}
+  <p>* These models can also be used to refold designs from generative models and give them an additional score.</p>
   <p><b>Folding</b> takes amino-acid sequences and predicts a structure. <b>Co-folding</b> takes multiple components and predicts a complex. A predicted complex does not prove that the two proteins bind, but some studies show weak correlations.</p>
   <p>The planned tools include <a href="#tools">JapanFold, Nebius, Apheris Foundry and AMASS</a>. Model access and versions will be confirmed before the event.</p>
   <h3>What do model scores mean?</h3>
@@ -1647,12 +1649,13 @@ SH.beyond=()=>`<div class="prose">
   ])}
   <h3>What each property means, and what you can check</h3>
   ${dvmap([
-   ['Stability','Does it keep its shape under different conditions?','stab','mid'],
-   ['Solubility and aggregation','Does it stay soluble or clump?','sol','mid'],
-   ['Expression','Can we produce that protein in the lab easily?','expr','lab'],
-   ['Chemical liabilities','Is it prone to unwanted modifications?','chem','ok'],
-   ['Immunogenicity','Could it trigger an unwanted immune response?','imm','mid']
+   ['Stability','Does it keep its shape under different conditions?','stab','ThermoMPNN, ESM-IF and others.'],
+   ['Solubility and aggregation','Does it stay soluble or clump?','sol','Aggrescan 3D, SoluProt, NetSolP, and ProteinMPNN with soluble weights.'],
+   ['Expression','Can we produce that protein in the lab easily?','expr','Ideas in the <a href="#ref">further reading</a> (the EGFR paper).'],
+   ['Chemical liabilities','Is it prone to unwanted modifications?','chem','TNP (Therapeutic Nanobody Profiler) and TAP (Therapeutic Antibody Profiler).'],
+   ['Immunogenicity','Could it trigger an unwanted immune response?','imm','Staying close to germline sequences helps.']
   ])}
+  <p>Check with <a href="#amass">AMASS</a> for more ideas.</p>
   <h3>Liability motifs are just string patterns</h3>
   <p>Most chemical liabilities are short patterns you can find with a text search, which makes them an easy developability problem to act on. These are illustrative examples:</p>
   <div data-widget="motif"></div>
@@ -1880,7 +1883,12 @@ const GLOSSARY=[
  ['Viscosity · rheometry','How thick a solution is, measured by rheometry. Concentrated protein drugs can be too thick to inject.'],
  ['Deamidation · isomerization · oxidation','Slow chemical changes to particular amino acids that can alter a drug in storage.'],
  ['van der Waals · electrostatics · hydrogen bond','The weak attractions between atoms: close-contact attraction · attraction or repulsion between charges · a hydrogen shared between two polar atoms.'],
- ['Desolvation · entropy','The cost of stripping water off surfaces that come together · the cost of freezing floppy parts in place.']
+ ['Desolvation · entropy','The cost of stripping water off surfaces that come together · the cost of freezing floppy parts in place.'],
+  ['ThermoMPNN','A model that predicts how a mutation changes a protein’s stability.'],
+ ['ESM-IF','An inverse-folding model from the ESM family: it suggests sequences that fit a given structure, and its scores are also used to judge stability.'],
+ ['Aggrescan 3D','A tool that finds aggregation-prone patches on a protein’s 3D structure.'],
+ ['SoluProt · NetSolP','Sequence-based predictors of how soluble a protein will be when produced in the lab.'],
+ ['ProteinMPNN','A model that designs sequences for a given backbone (inverse folding).']
 ];
 GLOSSARY.sort((a,b)=>a[0].localeCompare(b[0],'en'));
 SH.glossary=()=>`<div class="prose">
