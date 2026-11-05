@@ -290,8 +290,18 @@ body:not([data-track]) .jrow .bar i{background:linear-gradient(90deg,var(--viole
 .tl-i::before{content:"";position:absolute;left:-27px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:3px solid var(--rose)}
 .tl-i b.t{font:700 1.4rem var(--f-head);letter-spacing:-.03em;margin-right:10px}
 .tl-i span{color:var(--muted);font-size:15px}
-.people{display:flex;flex-wrap:wrap;gap:10px}
-.person{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-weight:600}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:1em 0 0}
+.person{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.avatar{position:relative;flex:none;width:64px;height:64px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--accent-s);color:var(--accent);box-shadow:inset 0 0 0 1px var(--line)}
+.avatar b{font:700 1.1rem var(--f-head);letter-spacing:.02em}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pbio{min-width:0}
+.pbio h4{margin:4px 0 2px;font:700 1.02rem/1.25 var(--f-head);letter-spacing:-.01em}
+.pbio p{margin:0;font-size:13.5px;line-height:1.4;color:var(--muted)}
+.role{display:inline-block;padding:3px 8px;border-radius:99px;font:600 10px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.role.judge{color:var(--violet);background:var(--violet-s)}
+.role.mentor{color:var(--green);background:var(--green-s)}
+.role.both{color:var(--rose);background:var(--rose-s)}
 .partners{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
 .partner{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 10px 14px}
 .plogo{height:84px;display:grid;place-items:center;margin-bottom:12px;padding:14px 18px;border-radius:10px;background:#16131F;border:1px solid #3A3650;color:#fff;font-size:12px;text-align:center}
@@ -414,6 +424,8 @@ html.printmode .layout main{max-width:none}
 html.printmode .chap{padding:18px 0}
 html.printmode footer.foot{background:none;padding:26px 0 10px;margin-top:30px}
 html.printmode .partner{break-inside:avoid}
+html.printmode .person{break-inside:avoid}
+html.printmode .people{grid-template-columns:repeat(2,1fr)}
 html.printmode .partners{grid-template-columns:repeat(3,1fr)}
 html.printmode .picker{grid-template-columns:repeat(2,minmax(0,1fr))}
 html.printmode .tcard .go{display:none}
@@ -1350,7 +1362,20 @@ const PARTNERS_HTML=`
   <div class="partner"><div class="plogo big"><a href="https://yogutide.com/" target="_blank" rel="noopener" class="plink"><img src="yogutide.png" alt="Yogutide logo"></a></div><span>Co-organizer</span><h3><a href="https://yogutide.com/" target="_blank" rel="noopener">Yogutide</a></h3><p>Sponsor relations</p></div>
   <div class="partner"><div class="plogo"><a href="https://www.tekna.no/fag-og-nettverk/miljo-og-biovitenskap/tekna-biotek/" target="_blank" rel="noopener" class="plink"><img src="tekna.png" alt="Tekna logo"></a></div><span>Co-organizer</span><h3><a href="https://www.tekna.no/fag-og-nettverk/miljo-og-biovitenskap/tekna-biotek/" target="_blank" rel="noopener">Tekna Biotek</a></h3><p>Community and hospitality</p></div>
 `;
-const JUDGES=['Monica Fernández-Quintero','Leonardo Castorina','Victor Greiff','Jan Terje Andersen'];
+/* Judges and mentors. role: judge | mentor | both.  Photo: people/first-last.jpg on the website (square, about 300 px).
+   Initials show until the photo loads, or if it is missing. */
+const JUDGES=[
+  ['Victor Greiff','both','Prof., Systems Immunology, UiO · CTO, IMPRINT','VG','victor-greiff.jpg'],
+  ['Monica Fernandez Quintero','judge','Assoc. Prof., UCPH, NIVI Research','MF','monica-fernandez-quintero.jpg'],
+  ['Leonardo Castorina','both','Sr. ML Engineer, Apheris','LC','leonardo-castorina.jpg'],
+  ['Jan Terje Andersen','judge','Prof., Biomedical Innovation, UiO · CEO, Superio Bio','JA','jan-terje-andersen.jpg'],
+  ['Daria Balashova','both','AI Engineer, Nebius','DB','daria-balashova.png'],
+  ['Joachim Paasche','judge','Venture Partner, Aleap','JP','joachim-paasche.jpg'],
+  ['Egor Marin','mentor','ML Engineer, Apheris','EM','egor-marin.jpg'],
+  ['Arseniy Sokolov','mentor','Sr. HCLS Solutions Architect, Nebius','AS','arseniy.png']
+];
+const ROLE={judge:'Judge',mentor:'Mentor',both:'Judge &amp; Mentor'};
+const judgeCards=()=>`<div class="people">${JUDGES.map(([n,r,a,i,f])=>`<div class="person"><div class="avatar"><b>${i}</b><img src="/people/${f}" alt="${n}" loading="lazy" onerror="this.remove()"></div><div class="pbio"><span class="role ${r}">${ROLE[r]}</span><h4>${n}</h4><p>${a}</p></div></div>`).join('')}</div>`;
 
 const RUNG=[
   ['Fold a single nanobody',92,'var(--good)','Largely solved for the framework. CDR3 remains the weak spot.'],
@@ -1683,8 +1708,9 @@ SH.judging=()=>`<div class="prose">
   <p class="lead">Among the different scoring categories, <i>Judgment</i> carries the most weight: what your tool changes, how it scores, and when it stops. <b>These weights are provisional</b> and will be confirmed in the final hackathon instructions.</p>
   ${judging()}
   <p style="margin-top:20px">Stopping criteria deserve thought. Knowing when a search has gone far enough, and saying why, is a good decision to make, and it sits inside the top-weighted criterion. A judge runs your project on a case your team hasn’t seen, so hard-coding to one antigen, dataset or lucky seed will lose you points.</p>
-  <h3>Judges</h3>
-  <div class="people">${JUDGES.map(j=>`<span class="person">${j}</span>`).join('')}</div>
+  <h3>Judges and mentors</h3>
+  ${judgeCards()}
+  <p style="margin-top:14px;text-align:center;color:var(--muted);font-size:14px">More judges and mentors coming soon.</p>
   <p style="margin-top:16px;color:var(--muted)">Prizes are sponsored by Apheris, OpenFold and Amass. Adaptyv will test selected designs experimentally (VHHs, Fabs and scFvs, not whole antibodies).</p>
 </div>`;
 
