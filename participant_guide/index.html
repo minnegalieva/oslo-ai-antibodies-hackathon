@@ -1891,11 +1891,8 @@ SH.glossary=()=>`<div class="prose">
 </div>`;
 
 SH.ref=()=>`<div class="prose">
-  <ul>
-   <li>AlphaFold2 (Jumper et al., <i>Nature</i> 2021), AlphaFold3 (Abramson et al., <i>Nature</i> 2024) and RFdiffusion (Watson et al., <i>Nature</i> 2023) for what the headline methods actually claim. Then the independent benchmarking papers on antibody–antigen complexes, which are more sobering.</li>
-   <li>The ${L('https://www.blopig.com/blog/','OPIG blog')} from the Oxford Protein Informatics Group is the best short-form writing on antibody informatics.</li>
-   <li>The “Antibodies to watch” review series in ${L('https://www.tandfonline.com/journals/kmab20','<i>mAbs</i>')}, published annually, for the clinical and commercial landscape in one sitting.</li>
-  </ul>
+  <p class="lead">${L('https://www.biorxiv.org/content/10.1101/2025.04.17.648362v2','Crowdsourced Protein Design: Lessons From the Adaptyv EGFR Binder Competition')} <span style="color:var(--muted)">(bioRxiv preprint, 2025)</span></p>
+  <p>A look back at a contest much like this one. About 160 people submitted roughly 1,900 designs against one cancer target (EGFR) to Adaptyv, the lab that will test yours, and a selection was tested in the lab. The main lesson: model confidence scores (ipTM, pLDDT) were weak at picking out the strongest binders.</p>
 </div>`;
 
 const TRACKS={};
