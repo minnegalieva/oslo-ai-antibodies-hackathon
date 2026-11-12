@@ -1320,10 +1320,10 @@ const dir=(n,title,body)=>`<div class="dir"><span class="n">${n}</span><h3>${tit
 const sci=(b,e)=>`${b}×10<sup>${e}</sup>`;
 
 const CRIT=[
-  ['Judgment',40,'Are the decisions principled? What does it change, how does it score?'],
-  ['Execution',20,'Does it run unattended on something unseen and get somewhere sensible?'],
-  ['User fit',20,'Who is the user, what pain is mitigated, how costly is that pain?'],
-  ['Path to value',20,'How do you get from prototype to real use, and how is that funded?']
+  ['Judgment',40,'Clear reasoning behind the molecules you chose.'],
+  ['Execution',20,'A reproducible pipeline in a GitHub repo.'],
+  ['User fit',20,'What your design is for, and who needs it.'],
+  ['Path to value',20,'A credible route to real use, for the molecule or the method.']
 ];
 const judging=()=>`<div class="judge">${CRIT.map(([n,w,q])=>`<div class="jrow" style="--w:${w*2.2}%"><div class="nm">${n}<span>${w}% of score</span></div><div class="bar"><i>${w}%</i></div><div class="q">${q}</div></div>`).join('')}</div>`;
 
@@ -1706,7 +1706,7 @@ SH.amass=()=>`<div class="prose">
 
 SH.judging=()=>`<div class="prose">
   ${callout('info','Schedule, rules and practical details','Everything about the day itself is on the event website: <a href="https://oslo-ai-antibodies-hackathon.vercel.app/" target="_blank" rel="noopener">AI × Antibodies Hackathon · Oslo</a>')}
-  <p class="lead">Among the different scoring categories, <i>Judgment</i> carries the most weight: what your tool changes, how it scores, and when it stops. <b>These weights are provisional</b> and will be confirmed in the final hackathon instructions.</p>
+  <p class="lead">Among the different scoring categories, <i>Judgment</i> carries the most weight: we want to know why you made each choice, not only what you built. <b>These weights are provisional</b> and will be confirmed in the final hackathon instructions.</p>
   ${judging()}
   <p style="margin-top:20px">Each group needs to provide score tables and report where each score came from.</p>
   <h3>Judges and mentors</h3>
