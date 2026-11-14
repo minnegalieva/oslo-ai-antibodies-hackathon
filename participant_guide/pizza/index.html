@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pick your pizza · AI × Antibodies Hackathon</title>
+<style>
+  :root{--bg:#fbf6ef;--card:#fff;--ink:#2a1d17;--muted:#7a6a60;--line:#eadfd3;--tomato:#c8402a;--tomato-soft:#fbe4de;--basil:#3d7a4a;--basil-soft:#e2f0e4;--cheese-soft:#fdf1d6;--r:14px}
+  @media (prefers-color-scheme:dark){:root{--bg:#1b1512;--card:#251d19;--ink:#f5ece4;--muted:#b3a297;--line:#3a2e28;--tomato:#ec6a52;--tomato-soft:#3b211b;--basil:#7cc08a;--basil-soft:#1f3124;--cheese-soft:#3a2f17}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 120px}
+  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--tomato)}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:32px;line-height:1.1;margin:6px 0}
+  header p{margin:0;color:var(--muted)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:16px 0 14px}
+  label.f{display:block;font-weight:600;font-size:13.5px;margin:0 0 6px}
+  textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:60px;resize:vertical}
+  textarea:focus{outline:2px solid #f2b134;outline-offset:1px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 13.5px inherit;font-family:inherit;padding:6px 12px;border-radius:999px;cursor:pointer}
+  .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .filters{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0}
+  .cat{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 2px 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+  .pz{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit}
+  .pz.sel{border-color:var(--tomato);background:var(--tomato-soft)}
+  .pz .no{font-weight:600;font-size:11.5px;color:var(--muted)}
+  .pz .nm{font-weight:600;font-size:15px;margin:1px 0 3px;padding-right:28px}
+  .pz .tp{font-size:13px;color:var(--muted);line-height:1.35}
+  .tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .tag{font-weight:600;font-size:11px;padding:2px 7px;border-radius:999px;background:var(--line)}
+  .tag.veg{background:var(--basil-soft);color:var(--basil)}
+  .tag.hot{background:var(--tomato-soft);color:var(--tomato)}
+  .tag.new{background:var(--cheese-soft)}
+  .rank{position:absolute;top:9px;right:10px;width:24px;height:24px;border-radius:50%;background:var(--tomato);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:10}
+  .bar .in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px}
+  .bar .picks{flex:1;min-width:0;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .picks b{color:var(--ink)}
+  .btn{border:0;background:var(--tomato);color:#fff;font:600 15px inherit;font-family:inherit;padding:11px 18px;border-radius:12px;cursor:pointer;white-space:nowrap}
+  .btn:disabled{opacity:.45;cursor:default}
+  .done{text-align:center;padding:40px 16px}
+  .done .big{font-size:56px}
+  .done h2{font-family:Georgia,serif;font-size:26px;margin:8px 0}
+  .msg{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14px;background:var(--cheese-soft)}
+  .empty{color:var(--muted);text-align:center;padding:20px 0}
+  .src{font-size:12.5px;color:var(--muted);margin-top:24px}.src a{color:var(--muted)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<script>
+/* ============ ORGANISER: paste your Google Form link here ============
+   1. Create a Google Form with 3 questions, all type "Short answer"
+      (or "Paragraph"):  Pizza,  Dietary,  Notes.
+   2. In the form: ⋮ menu → "Get pre-filled link". Type the words
+      PIZZA, DIET and NOTE into the three answers (in that order),
+      click "Get link", and paste the link below.
+   Responses then appear in the form's Responses tab / linked Google Sheet. */
+const PREFILLED_LINK = "https://docs.google.com/forms/d/e/1FAIpQLSdQxtH-snnex_NjdpW0dO2FiJHPa7C09CLX11EKR0pKbq7U-g/viewform?usp=pp_url&entry.1797758490=PIZZA&entry.629649265=DIET&entry.495407533=NOTE";
+/* ===================================================================== */
+</script>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">AI × Antibodies Hackathon · Oslo</div>
+    <h1>🍕 Pick your pizza!</h1>
+    <p>Choose your <b>one favourite</b> from the Pizzabakeren menu. Tap a pizza to choose it, tap another to switch.</p>
+  </header>
+
+  <div id="form">
+    <div id="setup" class="msg" hidden>⚠️ Organiser: this page isn't connected to a Google Form yet (see the note at the top of the file). Votes can't be sent until then.</div>
+    <section>
+      <label class="f">Dietary needs <span style="font-weight:400;color:var(--muted)">(tick any that apply)</span></label>
+      <div class="chips" id="diet"></div>
+      <div style="height:14px"></div>
+      <label class="f" for="note">Allergies or anything else? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <textarea id="note" maxlength="300" placeholder="e.g. allergic to nuts, no mushrooms please"></textarea>
+    </section>
+    <div class="filters"><div class="chips" id="filters"></div></div>
+    <div id="menu"></div>
+    <p class="src">Menu from <a href="https://www.pizzabakeren.no/pizzameny">pizzabakeren.no/pizzameny</a>, ingredients translated to English. All pizzas have cheese and tomato sauce unless another sauce is shown. A gluten-free base is available as an option.</p>
+  </div>
+
+  <div id="thanks" class="done" hidden>
+    <div class="big">🎉</div>
+    <h2>Thanks, your pick is in!</h2>
+    <p id="thanksPick" style="font-size:17px"></p>
+    <p style="color:var(--muted)">Nothing more to do. We'll order in bulk and bring the pizza.</p>
+  </div>
+</div>
+
+<div class="bar" id="bar">
+  <div class="in"><div class="picks" id="pickTxt">Tap a pizza to choose it</div><button class="btn" id="submit" disabled>Submit</button></div>
+</div>
+
+<script>
+const CATS=[["orig","Original crust (small · medium · large)"],["white","White sauce"],["vegan","Vegan & gluten-free (30 cm)"],["single","Thin crust single-serving"]];
+// [no, name, toppings, category, flags]  v=vegetarian V=vegan h=spicy n=new w=white sauce t=taco sauce c=chili tomato sauce p=pork
+const P=[
+ ["01","Den enkle","Just cheese & tomato","orig","v"],
+ ["02","Kvess","Ham, mushrooms","orig","p"],
+ ["03","Drømmen","Minced meat, red pepper","orig",""],
+ ["04","Pizzabakeren Spesial","Minced meat, onion, bacon","orig","p"],
+ ["05","Snadder","Minced meat, onion, pineapple","orig",""],
+ ["06","Mix","Pepperoni, onion, red pepper","orig","p"],
+ ["07","Meksikaneren","Marinated chicken & beef, garlic, corn, chili, nacho chips","orig","h"],
+ ["08","Biffen","Marinated beef strips, bacon, garlic","orig","p"],
+ ["09","Den marinerte","Marinated beef strips, mushrooms, onion","orig",""],
+ ["10","Peppersvennen","Pepper beef strips, mushrooms, onion, red pepper","orig",""],
+ ["11","Flammen","Minced meat, jalapeño, nacho chips","orig","ht"],
+ ["12","Tacokyllingen","Marinated chicken, jalapeño, nacho chips","orig","ht"],
+ ["13","Kokkens kylling","Marinated chicken, onion, corn, mushrooms","orig",""],
+ ["14","Kokkens favoritt","Minced meat, premium bacon, pineapple","orig","p"],
+ ["16","Luksuskylling","Marinated chicken, premium bacon, onion, red pepper","orig","p"],
+ ["17","Kyllingfarmen","Marinated chicken, chili, pesto, red onion","orig","h"],
+ ["18","Vegetarianeren","Mushrooms, red pepper, corn, spring onion","orig","v"],
+ ["20","Drengen","Ham, bacon","orig","p"],
+ ["21","Mr.X","Minced meat, pepperoni, onion, pineapple","orig","p"],
+ ["22","Chorizo Spesial","Chorizo, marinated beef, onion","orig","p"],
+ ["23","Dobbeldekker","Ham, minced meat, oregano","orig","p"],
+ ["24","Heit kylling","Spicy marinated chicken, bacon, pineapple","orig","hp"],
+ ["25","Chorizoen","Chorizo, pesto, oregano, red pepper","orig","p"],
+ ["26","Tospannet","Pepperoni, ham, pineapple","orig","p"],
+ ["28","Hottentoppen","Pepper beef, pepperoni, red pepper","orig","hp"],
+ ["31","Kruttsterk","Spicy marinated chicken, red onion, jalapeño","orig","hc"],
+ ["33","Kyllingkebaben","Spiced chicken, corn, red onion, jalapeño, kebab dressing","orig","hc"],
+ ["34","Kokkens BBQ","Marinated chicken & beef, red onion, BBQ sauce","orig","n"],
+ ["35","Krydderplanten","Spiced plant protein, red onion, pesto","orig","vhcn"],
+ ["50","Spekeskinka","Cured ham, red onion, spring onion","white","wp"],
+ ["51","Tøffingen","Spicy marinated chicken, pepperoni, red onion, chili, spring onion","white","whp"],
+ ["52","Veggis","Red pepper, corn, red onion, chili, garlic, spring onion","white","wvh"],
+ ["53","Kyllingdrømmen","Spiced chicken, bacon, onion, mushrooms, garlic","white","wp"],
+ ["V-GF01","Den enkle vegansk","Vegan cheese, tomato sauce","vegan","vV"],
+ ["V-GF18","Vegetarianeren vegansk","Vegan cheese, mushrooms, red pepper, corn, spring onion","vegan","vV"],
+ ["101","Den single","Cheese, tomato, oregano","single","v"],
+ ["102","Vinneren","Pepperoni, red onion, red pepper, corn, oregano","single","p"],
+ ["103","Favoritten","Ham, mushrooms, oregano","single","p"],
+ ["104","Opplevelsen","Chorizo, red onion, pesto, oregano","single","p"],
+ ["106","Blandingen","Marinated chicken, pepperoni, red onion, oregano","single","p"],
+ ["107","Løsningen","Marinated beef, red onion, mushrooms, oregano","single",""],
+ ["108","Entusiasten","Red onion, mushrooms, corn, spring onion, oregano","single","v"],
+ ["150","Sprekingen","Cured ham, red onion, chili, spring onion, oregano","single","whp"],
+];
+const BY=Object.fromEntries(P.map(p=>[p[0],p]));
+const has=(p,f)=>p[4].includes(f);
+const DIETS=["Vegetarian","Vegan","Gluten-free","Dairy-free","No pork","No restrictions"];
+const FILTERS=[["all","All"],["veg","🌱 Vegetarian"],["vegan","Vegan"],["hot","🌶️ Spicy"],["mild","Not spicy"],["chicken","Chicken"],["nopork","No pork"],["new","New"]];
+const fx={all:()=>true,veg:p=>has(p,"v"),vegan:p=>has(p,"V"),hot:p=>has(p,"h"),mild:p=>!has(p,"h"),chicken:p=>/chicken/i.test(p[2]),nopork:p=>!has(p,"p"),new:p=>has(p,"n")};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let pick=null, diet=new Set(), filter="all", sending=false;
+
+// ---- parse the pre-filled Google Form link ----
+function parseForm(link){
+  try{
+    const u=new URL(link); const f={action:u.origin+u.pathname.replace(/\/viewform$/,"/formResponse")};
+    u.searchParams.forEach((v,k)=>{ if(/^entry\.\d+$/.test(k)){ const w=v.trim().toUpperCase(); if(w==="PIZZA")f.pizza=k; if(w==="DIET")f.diet=k; if(w==="NOTE")f.note=k; }});
+    return (f.pizza&&f.diet&&f.note&&/\/forms\//.test(u.pathname))?f:null;
+  }catch(e){return null}
+}
+const FORM=parseForm(PREFILLED_LINK);
+if(!FORM) $("setup").hidden=false;
+
+// ---- one vote per device ----
+const KEY="pizza-pick-hackathon-2026-11-14";
+function savedPick(){try{return localStorage.getItem(KEY)}catch(e){return null}}
+function showThanks(id){ $("form").hidden=true; $("bar").hidden=true; $("thanks").hidden=false; $("thanksPick").innerHTML=`Your favourite: <b>${esc(BY[id]?BY[id][1]:id)}</b>`; window.scrollTo(0,0); }
+
+function tagsHtml(p){let t="";
+  if(has(p,"V"))t+='<span class="tag veg">Vegan</span>';else if(has(p,"v"))t+='<span class="tag veg">Vegetarian</span>';
+  if(has(p,"h"))t+='<span class="tag hot">Spicy</span>'; if(has(p,"w"))t+='<span class="tag">White sauce</span>';
+  if(has(p,"t"))t+='<span class="tag">Taco sauce</span>'; if(has(p,"c"))t+='<span class="tag">Chili tomato sauce</span>';
+  if(has(p,"n"))t+='<span class="tag new">New</span>'; return t?'<div class="tags">'+t+'</div>':"";}
+function renderDiet(){$("diet").innerHTML=DIETS.map(d=>`<button type="button" class="chip ${diet.has(d)?"on":""}" data-d="${d}">${d}</button>`).join("");}
+function renderFilters(){$("filters").innerHTML=FILTERS.map(([k,l])=>`<button type="button" class="chip ${filter===k?"on":""}" data-f="${k}">${l}</button>`).join("");}
+function renderMenu(){const f=fx[filter];let h="";
+  for(const [c,label] of CATS){const list=P.filter(p=>p[3]===c&&f(p)); if(!list.length)continue;
+    h+=`<div class="cat">${label}</div><div class="grid">`;
+    for(const p of list){const on=pick===p[0];
+      h+=`<button type="button" class="pz ${on?"sel":""}" data-id="${p[0]}" aria-pressed="${on}">${on?'<span class="rank">✓</span>':""}<div class="no">Nr. ${p[0]}</div><div class="nm">${esc(p[1])}</div><div class="tp">${esc(p[2])}</div>${tagsHtml(p)}</button>`;}
+    h+="</div>";}
+  $("menu").innerHTML=h||'<p class="empty">No pizzas match this filter.</p>'; renderBar();}
+function renderBar(){ $("pickTxt").innerHTML=pick?`Your pick: <b>${esc(BY[pick][1])}</b>`:"Tap a pizza to choose it"; $("submit").disabled=!pick||sending; }
+
+$("menu").addEventListener("click",e=>{const b=e.target.closest(".pz");if(!b)return; pick=(pick===b.dataset.id)?null:b.dataset.id; renderMenu();});
+$("diet").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const d=b.dataset.d;
+  if(d==="No restrictions"){diet=new Set(diet.has(d)?[]:[d]);}else{diet.delete("No restrictions");diet.has(d)?diet.delete(d):diet.add(d);} renderDiet();});
+$("filters").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;filter=b.dataset.f;renderFilters();renderMenu();});
+
+$("submit").addEventListener("click",async()=>{
+  if(!pick||sending) return;
+  if(!FORM){ $("setup").hidden=false; window.scrollTo({top:0,behavior:"smooth"}); return; }
+  sending=true; $("submit").textContent="Sending…"; renderBar();
+  const p=BY[pick]; const body=new URLSearchParams();
+  body.set(FORM.pizza,`${p[0]} ${p[1]}`);
+  body.set(FORM.diet,[...diet].join(", ")||"—");
+  body.set(FORM.note,$("note").value.trim().slice(0,300));
+  try{
+    await fetch(FORM.action,{method:"POST",mode:"no-cors",body});
+    try{localStorage.setItem(KEY,pick)}catch(e){}
+    showThanks(pick);
+  }catch(err){
+    sending=false; $("submit").textContent="Try again"; renderBar();
+    const s=$("setup"); s.hidden=false; s.textContent="Couldn't send your pick. Check your connection and press Try again."; window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+
+renderDiet();renderFilters();renderMenu();
+const prev=savedPick(); if(prev&&BY[prev]) showThanks(prev);
+</script>
+</body>
+</html>
